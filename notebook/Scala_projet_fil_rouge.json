@@ -1,0 +1,195 @@
+{
+	"name": "Scala_projet_fil_rouge",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "JGOCDE",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "7a74a191-a9c0-4d1a-9b0d-bff82f89ae93"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "scala"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/e6c8c821-d880-4476-bb09-c266d937bc05/resourceGroups/Ecoledeladata/providers/Microsoft.Synapse/workspaces/ecoledatagroupeocde/bigDataPools/JGOCDE",
+				"name": "JGOCDE",
+				"type": "Spark",
+				"endpoint": "https://ecoledatagroupeocde.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/JGOCDE",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import org.apache.spark.sql.DataFrame\n",
+					"\n",
+					"def getCSVDataFrame(filePath: String): DataFrame = {\n",
+					"    val df = spark.read.option(\"header\", \"true\").csv(filePath)\n",
+					"    return df\n",
+					"    }\n",
+					"\n",
+					"//def writeParquetFile(df, mode, filePath):\n",
+					"//    df.write.mode(mode).csv(filePath)\n",
+					"\n",
+					"def getFilePath(relativePath: String, fileName: String): String = {\n",
+					"    val accountName = \"groupeocde\"\n",
+					"    val containerName = \"ocde\"\n",
+					"    // Construction du chemin relatif\n",
+					"    val adlsPath0 = \"abfss://\" + containerName + \"@\" + accountName + \".dfs.core.windows.net/\" + relativePath\n",
+					"    val adlsPath = adlsPath0 + fileName\n",
+					"    return adlsPath\n",
+					"}\n",
+					"\n",
+					"// Récupération des fichiers \n",
+					"val pathDepenseSante = getFilePath(\"test\", \"/Depensesante\")\n",
+					"println(pathDepenseSante)\n",
+					"\n",
+					"// Liste des pays retenus \n",
+					"val listePaysEurope = List(\"AUT\" ,\"BEL\", \"CZE\" ,\"DNK\", \"FIN\", \"FRA\", \"DEU\" ,\"GRC\", \"HUN\" ,\"ISL\", \"IRL\" ,\"ITA\", \"LUX\" ,\"NLD\",\"NOR\", \"POL\", \"PRT\",\"SVK\",\"ESP\", \"SWE\" ,\"CHE\" ,\"TUR\", \"GBR\", \"EST\" ,\"SVN\", \"LVA\", \"LTU\")\n",
+					"\n",
+					"// Dépense Santé\n",
+					"val DepenseSante = getCSVDataFrame(pathDepenseSante)\n",
+					"    .filter($\"SUBJECT\" === \"TOT\")                  // On sélectionne le montant total\n",
+					"    .filter($\"LOCATION\".isin(listePaysEurope:_*))  // On sélectionne les pays d'Europe \n",
+					"    .filter($\"TIME\" >= 1999)                       // On sélectionne les années à partir de 1999"
+				],
+				"execution_count": 63
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DepenseSante.show()\n",
+					"\n",
+					"val DepenseSantePC_PIB = DepenseSante\n",
+					"        .filter($\"MEASURE\"===\"PC_GDP\")// On filtre sur la mesure \"pourcentage\"\n",
+					"        .filter($\"\")"
+				],
+				"execution_count": 62
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
