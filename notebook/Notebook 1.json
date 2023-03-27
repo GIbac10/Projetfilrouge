@@ -1,0 +1,77 @@
+{
+	"name": "Notebook 1",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "JGOCDE",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "10253a75-32f8-429c-b0d5-aec1d4b09ffc"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/e6c8c821-d880-4476-bb09-c266d937bc05/resourceGroups/Ecoledeladata/providers/Microsoft.Synapse/workspaces/ecoledatagroupeocde/bigDataPools/JGOCDE",
+				"name": "JGOCDE",
+				"type": "Spark",
+				"endpoint": "https://ecoledatagroupeocde.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/JGOCDE",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"\r\n",
+					"import pandas as pd\r\n",
+					"\r\n",
+					"def oecd_request(sdmx_query):\r\n",
+					"    return pd.read_csv(f\"https://stats.oecd.org/SDMX-JSON/data/{sdmx_query}?contentType=csv\")\r\n",
+					"\r\n",
+					"sdmx_query = \"MEI_FIN/IRLT.AUS.M/OECD\"\r\n",
+					"result = oecd_request(sdmx_query)\r\n",
+					"\r\n",
+					"result\r\n",
+					""
+				],
+				"execution_count": 1
+			}
+		]
+	}
+}
