@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2ea53184-6090-445d-ae99-54a21ae396df"
+				"spark.autotune.trackingId": "693428b6-525d-4eb5-b515-83ad554e8b74"
 			}
 		},
 		"metadata": {
@@ -65,7 +65,7 @@
 					"pip install pandasdmx\r\n",
 					""
 				],
-				"execution_count": 80
+				"execution_count": 102
 			},
 			{
 				"cell_type": "code",
@@ -84,7 +84,7 @@
 					"import pandas as pd\r\n",
 					"import pandasdmx"
 				],
-				"execution_count": 81
+				"execution_count": 103
 			},
 			{
 				"cell_type": "code",
@@ -114,7 +114,7 @@
 					"    adlspath = adlspath + filename\r\n",
 					"    return adlspath"
 				],
-				"execution_count": 82
+				"execution_count": 104
 			},
 			{
 				"cell_type": "code",
@@ -132,7 +132,7 @@
 				"source": [
 					"oecd = pandasdmx.Request(\"OECD\")"
 				],
-				"execution_count": 83
+				"execution_count": 105
 			},
 			{
 				"cell_type": "code",
@@ -161,7 +161,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 84
+				"execution_count": 106
 			},
 			{
 				"cell_type": "code",
@@ -179,7 +179,7 @@
 				"source": [
 					"testdepensesante.show()"
 				],
-				"execution_count": 85
+				"execution_count": 107
 			},
 			{
 				"cell_type": "code",
@@ -197,7 +197,7 @@
 				"source": [
 					"testdepensesante.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
 				],
-				"execution_count": 86
+				"execution_count": 108
 			},
 			{
 				"cell_type": "code",
@@ -225,7 +225,7 @@
 					"testpopulation = getParquetDataFrame(getFilePath(\"bronze\",\"/population\"))\r\n",
 					""
 				],
-				"execution_count": 87
+				"execution_count": 109
 			},
 			{
 				"cell_type": "code",
@@ -244,7 +244,7 @@
 					"testpopulation.show()\r\n",
 					""
 				],
-				"execution_count": 88
+				"execution_count": 110
 			},
 			{
 				"cell_type": "code",
@@ -262,7 +262,7 @@
 				"source": [
 					"testpopulation.groupBy(\"AGE\").count().orderBy(\"count\").show()"
 				],
-				"execution_count": 89
+				"execution_count": 111
 			},
 			{
 				"cell_type": "code",
@@ -289,7 +289,7 @@
 					"writeParquetFile(pibspark,\"overwrite\",getFilePath(\"bronze\",\"/pib\"))\r\n",
 					"testpib = getParquetDataFrame(getFilePath(\"bronze\",\"/pib\"))"
 				],
-				"execution_count": 90
+				"execution_count": 112
 			},
 			{
 				"cell_type": "code",
@@ -307,7 +307,7 @@
 				"source": [
 					"testpib.show()"
 				],
-				"execution_count": 91
+				"execution_count": 113
 			},
 			{
 				"cell_type": "code",
@@ -325,7 +325,7 @@
 				"source": [
 					"testpib.groupBy(\"TRANSACT\").count().orderBy(\"count\").show()"
 				],
-				"execution_count": 92
+				"execution_count": 114
 			},
 			{
 				"cell_type": "code",
@@ -352,7 +352,7 @@
 					"writeParquetFile(couverturesocialespark,\"overwrite\",getFilePath(\"bronze\",\"/couverturesociale\"))\r\n",
 					"testcouverturesociale = getParquetDataFrame(getFilePath(\"bronze\",\"/couverturesociale\"))"
 				],
-				"execution_count": 93
+				"execution_count": 115
 			},
 			{
 				"cell_type": "code",
@@ -370,7 +370,7 @@
 				"source": [
 					"testcouverturesociale.show()"
 				],
-				"execution_count": 94
+				"execution_count": 116
 			},
 			{
 				"cell_type": "code",
@@ -397,7 +397,7 @@
 					"writeParquetFile(depensessocialesspark,\"overwrite\",getFilePath(\"bronze\",\"/depensessociales\"))\r\n",
 					"testdepensessociales = getParquetDataFrame(getFilePath(\"bronze\",\"/depensessociales\"))"
 				],
-				"execution_count": 96
+				"execution_count": 117
 			},
 			{
 				"cell_type": "code",
@@ -415,7 +415,7 @@
 				"source": [
 					"testdepensessociales.groupBy(\"TYPEXP\").count().orderBy(\"count\").show()"
 				],
-				"execution_count": 97
+				"execution_count": 118
 			},
 			{
 				"cell_type": "code",
@@ -433,7 +433,7 @@
 				"source": [
 					"testdepensessociales.show()"
 				],
-				"execution_count": null
+				"execution_count": 119
 			},
 			{
 				"cell_type": "code",
@@ -460,7 +460,7 @@
 					"writeParquetFile(cotisationsecuspark,\"overwrite\",getFilePath(\"bronze\",\"/cotisationsecu\"))\r\n",
 					"testcotisationsecu = getParquetDataFrame(getFilePath(\"bronze\",\"/cotisationsecu\"))"
 				],
-				"execution_count": 98
+				"execution_count": 120
 			},
 			{
 				"cell_type": "code",
@@ -478,7 +478,7 @@
 				"source": [
 					"testcotisationsecu.show()"
 				],
-				"execution_count": 99
+				"execution_count": 121
 			}
 		]
 	}
