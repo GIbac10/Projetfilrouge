@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7a74a191-a9c0-4d1a-9b0d-bff82f89ae93"
+				"spark.autotune.trackingId": "4ff006cc-c9b2-44c6-93c0-b4316ce2b3a7"
 			}
 		},
 		"metadata": {
@@ -94,7 +94,7 @@
 					"    .filter($\"LOCATION\".isin(listePaysEurope:_*))  // On sélectionne les pays d'Europe \n",
 					"    .filter($\"TIME\" >= 1999)                       // On sélectionne les années à partir de 1999"
 				],
-				"execution_count": 63
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -132,6 +132,13 @@
 					}
 				},
 				"source": [
+					"def taux_evol(df: DataFrame, variable: String, nom_du_taux: String): DataFrame = {\n",
+					"    for(i <- 1 to .count()){\n",
+					"        if df.loc[i, \"Pays\"] == df.loc[i-1, \"Pays\"]:\n",
+					"            df.loc[i, nom_du_taux] = round((df.loc[i, variable] - df.loc[i-1, variable])*100 / df.loc[i-1, variable], 1)\n",
+					"\n",
+					"      }\n",
+					"}\n",
 					""
 				],
 				"execution_count": 35
