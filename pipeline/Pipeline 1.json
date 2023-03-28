@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Notebook1",
+				"name": "Extraction donnees OCDE API",
 				"type": "SynapseNotebook",
 				"dependsOn": [],
 				"policy": {
@@ -35,11 +35,11 @@
 				}
 			},
 			{
-				"name": "Notebook2",
+				"name": "Nettoyage donnees",
 				"type": "SynapseNotebook",
 				"dependsOn": [
 					{
-						"activity": "Notebook1",
+						"activity": "Extraction donnees OCDE API",
 						"dependencyConditions": [
 							"Succeeded"
 						]
