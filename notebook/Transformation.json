@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "cb3f2fc4-6ec8-4ff6-a47d-74dd31a92335"
+				"spark.autotune.trackingId": "3e789d5b-39a9-4cc1-8719-ebb15f8ec28c"
 			}
 		},
 		"metadata": {
@@ -60,7 +60,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 58
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -85,7 +85,7 @@
 					"val depensesante_clean = depensesante_filtre_pays.withColumnRenamed(\"value\",\"DEPENSE_SANTE_%_PIB\").orderBy(\"LOCATION\")\r\n",
 					""
 				],
-				"execution_count": 59
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -103,7 +103,7 @@
 				"source": [
 					"depensesante.show()"
 				],
-				"execution_count": 61
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -121,7 +121,7 @@
 				"source": [
 					"depensesante_clean.show()"
 				],
-				"execution_count": 60
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -165,7 +165,7 @@
 					"val population_full = population_less_64.join(population_65_plus_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\")\r\n",
 					"val population_clean = population_full.join(population_totale_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\")"
 				],
-				"execution_count": 43
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -183,7 +183,7 @@
 				"source": [
 					"population.show()"
 				],
-				"execution_count": 62
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -201,26 +201,7 @@
 				"source": [
 					"population_clean.show()"
 				],
-				"execution_count": 42
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"population_supp_colonnes.groupBy(\"AGE\").count().orderBy(\"count\").show()\r\n",
-					"    "
-				],
-				"execution_count": 17
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -237,7 +218,51 @@
 				},
 				"source": [
 					"// Transformation pib\r\n",
-					"val pib = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/pib\")"
+					"val pib = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/pib\")\r\n",
+					"\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val pib_supp_colonnes = pib.drop(\"TRANSACT\",\"MEASURE\")\r\n",
+					"val pib_filtre_pays = pib_supp_colonnes.filter(pib_supp_colonnes(\"LOCATION\").isin(listepays:_*))\r\n",
+					"val pib_clean = pib_filtre_pays.withColumnRenamed(\"value\",\"PIB (Milliers Dollards)\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pib.show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pib_clean.show()"
 				],
 				"execution_count": null
 			},
@@ -256,7 +281,27 @@
 				},
 				"source": [
 					"// Transformation couverturesociale\r\n",
-					"val couverturesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/couverturesociale\")"
+					"val couverturesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/couverturesociale\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 74
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"couverturesociale.show()"
 				],
 				"execution_count": null
 			},
@@ -275,7 +320,55 @@
 				},
 				"source": [
 					"// Transformation depensesociale\r\n",
-					"val depensesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/depensessociale\")"
+					"val depensesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/depensessociales\")\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val depensesociale_supp_colonnes = depensesociale.drop(\"SOURCE\",\"BRANCH\",\"TYPEXP\",\"TYPROG\",\"UNIT\")\r\n",
+					"\r\n",
+					"val depensesociale_filtre_pays = depensesociale_supp_colonnes\r\n",
+					"    .filter(depensesociale_supp_colonnes(\"COUNTRY\")\r\n",
+					"    .isin(listepays:_*))\r\n",
+					"\r\n",
+					"val depensesociale_clean = depensesociale_filtre_pays\r\n",
+					"    .withColumnRenamed(\"value\",\"DEPENSES_SOCIALES (% PIB)\")\r\n",
+					"    .withColumnRenamed(\"COUNTRY\",\"LOCATION\")\r\n",
+					"    .orderBy(\"COUNTRY\",\"TIME_PERIOD\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesociale.show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesociale_clean.show()"
 				],
 				"execution_count": null
 			},
