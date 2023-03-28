@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4cc22d41-3d6f-43e6-8dec-42a82b55c7ff"
+				"spark.autotune.trackingId": "d81a4996-31a3-42c7-aff2-13b2de469722"
 			}
 		},
 		"metadata": {
@@ -65,7 +65,7 @@
 					"pip install pandasdmx\r\n",
 					""
 				],
-				"execution_count": 93
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -84,7 +84,7 @@
 					"import pandas as pd\r\n",
 					"import pandasdmx"
 				],
-				"execution_count": 94
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -114,7 +114,7 @@
 					"    adlspath = adlspath + filename\r\n",
 					"    return adlspath"
 				],
-				"execution_count": 95
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -132,7 +132,7 @@
 				"source": [
 					"oecd = pandasdmx.Request(\"OECD\")"
 				],
-				"execution_count": 96
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -161,7 +161,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 97
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -198,16 +198,16 @@
 					"#population OK\r\n",
 					"population_df = oecd.data(\r\n",
 					"    resource_id=\"HISTPOP\", \r\n",
-					"    key=\"all/all?startTime=2010&endTime=2021\"\r\n",
+					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EU27+G20+OECD+WLD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+SGP+ZAF.T.LESS_15_SHARE+15-64_SHARE+65_OVER_SHARE/all?startTime=2010&endTime=2021\"\r\n",
 					"    ).to_pandas()\r\n",
 					"\r\n",
 					"population = pd.DataFrame(population_df).reset_index()\r\n",
 					"populationspark = spark.createDataFrame(population)\r\n",
-					"writeParquetFile(depensesantespark,\"overwrite\",getFilePath(\"bronze\",\"/population\"))\r\n",
+					"writeParquetFile(populationspark,\"overwrite\",getFilePath(\"bronze\",\"/population\"))\r\n",
 					"testpopulation = getParquetDataFrame(getFilePath(\"bronze\",\"/population\"))\r\n",
 					""
 				],
-				"execution_count": 99
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -226,7 +226,25 @@
 					"testpopulation.show()\r\n",
 					""
 				],
-				"execution_count": 100
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testpopulation.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
