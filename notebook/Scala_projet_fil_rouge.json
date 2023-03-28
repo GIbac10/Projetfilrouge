@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4ff006cc-c9b2-44c6-93c0-b4316ce2b3a7"
+				"spark.autotune.trackingId": "df7b9159-7d07-42d3-ace1-75d29ee5a722"
 			}
 		},
 		"metadata": {
@@ -64,13 +64,18 @@
 				"source": [
 					"import org.apache.spark.sql.DataFrame\n",
 					"\n",
-					"def getCSVDataFrame(filePath: String): DataFrame = {\n",
-					"    val df = spark.read.option(\"header\", \"true\").csv(filePath)\n",
-					"    return df\n",
-					"    }\n",
+					"//def getCSVDataFrame(filePath: String): DataFrame = {\n",
+					"//    val df = spark.read.option(\"header\", \"true\").csv(filePath)\n",
+					"//    return df\n",
+					"//    }\n",
 					"\n",
 					"//def writeParquetFile(df, mode, filePath):\n",
 					"//    df.write.mode(mode).csv(filePath)\n",
+					"\n",
+					"def getParquetDataFrame(filePath: String): DataFrame ={\n",
+					"    val df = spark.read.parquet(filePath)\n",
+					"    return df\n",
+					"    }\n",
 					"\n",
 					"def getFilePath(relativePath: String, fileName: String): String = {\n",
 					"    val accountName = \"groupeocde\"\n",
@@ -82,19 +87,29 @@
 					"}\n",
 					"\n",
 					"// Récupération des fichiers \n",
-					"val pathDepenseSante = getFilePath(\"test\", \"/Depensesante\")\n",
-					"println(pathDepenseSante)\n",
+					"// Dépenses Santé\n",
+					"val DepenseSante = getParquetDataFrame(getFilePath(\"bronze\", \"/depensesante\"))\n",
+					"// Dépenses sociales\n",
+					"val DepenseSociale = getParquetDataFrame(getFilePath(\"bronze\", \"/depensessociales\"))\n",
+					"// Cotisation Secu\n",
+					"val CotisationSecu = getParquetDataFrame(getFilePath(\"bronze\", \"/cotisationsecu\"))\n",
+					"// Couverture Sociale\n",
+					"val CotisationSociale= getParquetDataFrame(getFilePath(\"bronze\", \"/couverturesociale\"))\n",
+					"// PIB\n",
+					"val PIB = getParquetDataFrame(getFilePath(\"bronze\", \"/pib\"))\n",
+					"// Population\n",
+					"val Population = getParquetDataFrame(getFilePath(\"bronze\", \"/population\"))\n",
+					"\n",
+					"\n",
 					"\n",
 					"// Liste des pays retenus \n",
-					"val listePaysEurope = List(\"AUT\" ,\"BEL\", \"CZE\" ,\"DNK\", \"FIN\", \"FRA\", \"DEU\" ,\"GRC\", \"HUN\" ,\"ISL\", \"IRL\" ,\"ITA\", \"LUX\" ,\"NLD\",\"NOR\", \"POL\", \"PRT\",\"SVK\",\"ESP\", \"SWE\" ,\"CHE\" ,\"TUR\", \"GBR\", \"EST\" ,\"SVN\", \"LVA\", \"LTU\")\n",
+					"val listePaysEurope = List(\"AUT\", \"BEL\", \"CZE\" ,\"DNK\", \"FIN\", \"FRA\", \"DEU\" ,\"GRC\", \"HUN\" ,\"ISL\", \"IRL\" ,\"ITA\", \"LUX\" ,\"NLD\",\"NOR\", \"POL\", \"PRT\",\"SVK\",\"ESP\", \"SWE\" ,\"CHE\" ,\"TUR\", \"GBR\", \"EST\" ,\"SVN\", \"LVA\", \"LTU\")\n",
 					"\n",
-					"// Dépense Santé\n",
-					"val DepenseSante = getCSVDataFrame(pathDepenseSante)\n",
-					"    .filter($\"SUBJECT\" === \"TOT\")                  // On sélectionne le montant total\n",
-					"    .filter($\"LOCATION\".isin(listePaysEurope:_*))  // On sélectionne les pays d'Europe \n",
-					"    .filter($\"TIME\" >= 1999)                       // On sélectionne les années à partir de 1999"
+					"\n",
+					"\n",
+					""
 				],
-				"execution_count": 2
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -111,12 +126,167 @@
 				},
 				"source": [
 					"DepenseSante.show()\n",
+					"DepenseSante.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 52
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DepenseSociale.show()\n",
+					"DepenseSociale.groupBy(\"COUNTRY\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 53
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CotisationSecu.show()\n",
+					"CotisationSecu.groupBy(\"COU\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CotisationSociale.show()\n",
+					"CotisationSociale.groupBy(\"COU\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 56
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"PIB.show()\n",
+					"PIB.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 57
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Population.show()\n",
+					"Population.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 51
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"val DepenseSante1 = DepenseSante\n",
+					"    .filter($\"TIME_PERIOD\" >= 1999)                    // On sélectionne les années à partir de 1999\n",
+					"    .filter($\"LOCATION\".isin(listePaysEurope:_*))  // On sélectionne les pays d'Europe  \n",
+					"    //.filter($\"HC\" === \"HCTOT\")                  // On sélectionne le montant total\n",
+					"    "
+				],
+				"execution_count": 39
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DepenseSante1.show()\n",
+					"DepenseSante1.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 40
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					"\n",
-					"val DepenseSantePC_PIB = DepenseSante\n",
+					"\n",
+					"val DepenseSantePC_PIB = DepenseSante1\n",
 					"        .filter($\"MEASURE\"===\"PC_GDP\")// On filtre sur la mesure \"pourcentage\"\n",
 					"        .filter($\"\")"
 				],
-				"execution_count": 62
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
