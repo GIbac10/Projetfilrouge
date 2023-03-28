@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "10253a75-32f8-429c-b0d5-aec1d4b09ffc"
+				"spark.autotune.trackingId": "b80a53c7-a072-432d-bf40-f45d2c73b522"
 			}
 		},
 		"metadata": {
@@ -50,27 +50,132 @@
 		"cells": [
 			{
 				"cell_type": "code",
-				"metadata": {
-					"microsoft": {
-						"language": "python"
-					}
-				},
 				"source": [
-					"%%pyspark\r\n",
+					"pip install pandasdmx\r\n",
 					"\r\n",
-					"\r\n",
-					"import pandas as pd\r\n",
-					"\r\n",
-					"def oecd_request(sdmx_query):\r\n",
-					"    return pd.read_csv(f\"https://stats.oecd.org/SDMX-JSON/data/{sdmx_query}?contentType=csv\")\r\n",
-					"\r\n",
-					"sdmx_query = \"MEI_FIN/IRLT.AUS.M/OECD\"\r\n",
-					"result = oecd_request(sdmx_query)\r\n",
-					"\r\n",
-					"result\r\n",
 					""
 				],
 				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pandas as pd\r\n",
+					"import pandasdmx "
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"oecd = pandasdmx.Request(\"OECD\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesante_df = oecd.data(\r\n",
+					"    resource_id=\"SHA\", \r\n",
+					"    key=\"HFTOT+HF1+HF2HF3+HF2+HF3.HCTOT+HC11HC21+HC13HC23+HC3+HC4+HC5+HC6+HC7+HC0.HPTOT+HP1+HP2+HP3+HP4+HP5+HP6+HP7+HP8+HP9+HP0.PARPIB+PARCUR+MLLNCU+UNPPER+PPPPER.AUS/all?startTime=2010&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"depensesante = pd.DataFrame(depensesante_df).reset_index()\r\n",
+					""
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesante"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"population_df = oecd.data(\r\n",
+					"    resource_id=\"HISTPOP\", \r\n",
+					"    key=\"all/all?startTime=2010&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"population = pd.DataFrame(population_df).reset_index()"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"population"
+				],
+				"execution_count": 11
 			}
 		]
 	}
