@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Nettoyage des donnees ",
+				"name": "Notebook1",
 				"type": "SynapseNotebook",
 				"dependsOn": [],
 				"policy": {
