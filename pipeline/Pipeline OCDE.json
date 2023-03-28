@@ -1,9 +1,9 @@
 {
-	"name": "Pipeline 1",
+	"name": "Pipeline OCDE",
 	"properties": {
 		"activities": [
 			{
-				"name": "Notebook1",
+				"name": "Extraction donnees via API OCDE",
 				"type": "SynapseNotebook",
 				"dependsOn": [],
 				"policy": {
@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "Notebook 1",
+						"referenceName": "Extraction_donnees_OCDE_API",
 						"type": "NotebookReference"
 					},
 					"snapshot": true,
@@ -27,11 +27,38 @@
 					"executorSize": "Small",
 					"conf": {
 						"spark.dynamicAllocation.enabled": false,
-						"spark.dynamicAllocation.minExecutors": 1,
-						"spark.dynamicAllocation.maxExecutors": 1
+						"spark.dynamicAllocation.minExecutors": 2,
+						"spark.dynamicAllocation.maxExecutors": 2
 					},
 					"driverSize": "Small",
-					"numExecutors": 1
+					"numExecutors": 2
+				}
+			},
+			{
+				"name": "Nettoyage des donnees ",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extraction donnees via API OCDE",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "Nettoyage",
+						"type": "NotebookReference"
+					},
+					"snapshot": true
 				}
 			}
 		],
