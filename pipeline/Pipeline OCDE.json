@@ -35,8 +35,8 @@
 				}
 			},
 			{
-				"name": "Execute Pipeline OCDE 2",
-				"type": "ExecutePipeline",
+				"name": "Nettoyage des donnees ",
+				"type": "SynapseNotebook",
 				"dependsOn": [
 					{
 						"activity": "Extraction donnees via API OCDE",
@@ -45,13 +45,32 @@
 						]
 					}
 				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "Pipeline OCDE 2",
-						"type": "PipelineReference"
+					"notebook": {
+						"referenceName": "Nettoyage",
+						"type": "NotebookReference"
 					},
-					"waitOnCompletion": true
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "JGOCDE",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Small",
+					"conf": {
+						"spark.dynamicAllocation.enabled": false,
+						"spark.dynamicAllocation.minExecutors": 2,
+						"spark.dynamicAllocation.maxExecutors": 2
+					},
+					"driverSize": "Small",
+					"numExecutors": 2
 				}
 			}
 		],
