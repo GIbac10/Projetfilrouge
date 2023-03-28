@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d81a4996-31a3-42c7-aff2-13b2de469722"
+				"spark.autotune.trackingId": "85af24c1-5d6a-4e92-9d51-d47e6ca4dffa"
 			}
 		},
 		"metadata": {
@@ -65,7 +65,7 @@
 					"pip install pandasdmx\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -84,7 +84,7 @@
 					"import pandas as pd\r\n",
 					"import pandasdmx"
 				],
-				"execution_count": 4
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -114,7 +114,7 @@
 					"    adlspath = adlspath + filename\r\n",
 					"    return adlspath"
 				],
-				"execution_count": 7
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -132,7 +132,7 @@
 				"source": [
 					"oecd = pandasdmx.Request(\"OECD\")"
 				],
-				"execution_count": 5
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -151,7 +151,7 @@
 					"#depensesante OK\r\n",
 					"depensesante_df = oecd.data(\r\n",
 					"    resource_id=\"SHA\", \r\n",
-					"    key=\"HFTOT+HF1+HF2HF3+HF2+HF3.HCTOT+HC11HC21+HC13HC23+HC3+HC4+HC5+HC6+HC7+HC0.HPTOT+HP1+HP2+HP3+HP4+HP5+HP6+HP7+HP8+HP9+HP0.PARPIB+PARCUR+MLLNCU+UNPPER+PPPPER.AUS/all?startTime=2010&endTime=2021\"\r\n",
+					"    key=\"HFTOT.HCTOT.HPTOT.PARPIB.AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+NMEC+ALB+ARG+BRA+BGR+CHN+HRV+CYP+IND+MLT+MNE+MKD+PER+ROU+SRB+ZAF/all?startTime=1999&endTime=2021\"\r\n",
 					"    ).to_pandas()\r\n",
 					"\r\n",
 					"depensesante = pd.DataFrame(depensesante_df).reset_index()\r\n",
@@ -161,7 +161,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -179,7 +179,7 @@
 				"source": [
 					"testdepensesante.show()"
 				],
-				"execution_count": 98
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -195,10 +195,28 @@
 					}
 				},
 				"source": [
-					"#population OK\r\n",
+					"testdepensesante.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#population OK : 4 valeurs de AGE à mettre en colonnes\r\n",
 					"population_df = oecd.data(\r\n",
 					"    resource_id=\"HISTPOP\", \r\n",
-					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EU27+G20+OECD+WLD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+SGP+ZAF.T.LESS_15_SHARE+15-64_SHARE+65_OVER_SHARE/all?startTime=2010&endTime=2021\"\r\n",
+					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EU27+G20+OECD+WLD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+SGP+ZAF.T.TOTAL+LESS_15_SHARE+15-64_SHARE+65_OVER_SHARE/all?startTime=1999&endTime=2021\"\r\n",
 					"    ).to_pandas()\r\n",
 					"\r\n",
 					"population = pd.DataFrame(population_df).reset_index()\r\n",
@@ -207,7 +225,7 @@
 					"testpopulation = getParquetDataFrame(getFilePath(\"bronze\",\"/population\"))\r\n",
 					""
 				],
-				"execution_count": 22
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -242,9 +260,9 @@
 					}
 				},
 				"source": [
-					"testpopulation.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+					"testpopulation.groupBy(\"AGE\").count().orderBy(\"count\").show()"
 				],
-				"execution_count": 21
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -260,7 +278,7 @@
 					}
 				},
 				"source": [
-					"#pib OK\r\n",
+					"#pib OK : Supprimer TRANSACT et MEASURE : Value = Milliers DOLLARDS \r\n",
 					"pib_df = oecd.data(\r\n",
 					"    resource_id=\"SNA_TABLE1\", \r\n",
 					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EA19+EU27_2020+OECD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+ZAF.B1_GE.CPC/all?startTime=2016&endTime=2022\"\r\n",
@@ -271,7 +289,7 @@
 					"writeParquetFile(pibspark,\"overwrite\",getFilePath(\"bronze\",\"/pib\"))\r\n",
 					"testpib = getParquetDataFrame(getFilePath(\"bronze\",\"/pib\"))"
 				],
-				"execution_count": 101
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -289,7 +307,7 @@
 				"source": [
 					"testpib.show()"
 				],
-				"execution_count": 102
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -305,7 +323,25 @@
 					}
 				},
 				"source": [
-					"#couverture sociale OK\r\n",
+					"testpib.groupBy(\"TRANSACT\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#couverture sociale OK : Filtrer sur TOTPOPTX et Pays\r\n",
 					"couverturesociale_df = oecd.data(\r\n",
 					"    resource_id=\"HEALTH_PROT\", \r\n",
 					"    key=\"HCVG+TPRI+TPRIBASI+COVG+COVGCMED+PHIN+PHINTPHI+PHINPMPI+PHINDUPI+PHINCMPI+PHINSUPI.COVPOPTX+EFFPEREF+TOTPOPTX.AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+NMEC+BRA+RUS+ZAF/all?startTime=2010&endTime=2021\"\r\n",
@@ -316,7 +352,7 @@
 					"writeParquetFile(couverturesocialespark,\"overwrite\",getFilePath(\"bronze\",\"/couverturesociale\"))\r\n",
 					"testcouverturesociale = getParquetDataFrame(getFilePath(\"bronze\",\"/couverturesociale\"))"
 				],
-				"execution_count": 103
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -332,9 +368,27 @@
 					}
 				},
 				"source": [
-					"testdepensesante.show()"
+					"testcouverturesociale.show()"
 				],
-				"execution_count": 104
+				"execution_count": 46
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testcouverturesociale.groupBy(\"MEASURE\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -361,7 +415,25 @@
 					"writeParquetFile(depensessocialesspark,\"overwrite\",getFilePath(\"bronze\",\"/depensessociales\"))\r\n",
 					"testdepensessociales = getParquetDataFrame(getFilePath(\"bronze\",\"/depensessociales\"))"
 				],
-				"execution_count": 105
+				"execution_count": 47
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testdepensessociales.groupBy(\"UNIT\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -379,7 +451,7 @@
 				"source": [
 					"testdepensessociales.show()"
 				],
-				"execution_count": 106
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -406,7 +478,7 @@
 					"writeParquetFile(cotisationsecuspark,\"overwrite\",getFilePath(\"bronze\",\"/cotisationsecu\"))\r\n",
 					"testcotisationsecu = getParquetDataFrame(getFilePath(\"bronze\",\"/cotisationsecu\"))"
 				],
-				"execution_count": 107
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
