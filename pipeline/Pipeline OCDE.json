@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Nettoyage des donnees ",
+				"name": "Notebook1",
 				"type": "SynapseNotebook",
 				"dependsOn": [],
 				"policy": {
@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "Nettoyage",
+						"referenceName": "Extraction_donnees_OCDE_API",
 						"type": "NotebookReference"
 					},
 					"snapshot": true,
@@ -27,11 +27,11 @@
 					"executorSize": "Small",
 					"conf": {
 						"spark.dynamicAllocation.enabled": false,
-						"spark.dynamicAllocation.minExecutors": 2,
-						"spark.dynamicAllocation.maxExecutors": 2
+						"spark.dynamicAllocation.minExecutors": 1,
+						"spark.dynamicAllocation.maxExecutors": 1
 					},
 					"driverSize": "Small",
-					"numExecutors": 2
+					"numExecutors": 1
 				}
 			}
 		],
