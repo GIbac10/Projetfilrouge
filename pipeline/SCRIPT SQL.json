@@ -1,10 +1,10 @@
 {
-	"name": "Pipeline OCDE",
+	"name": "SCRIPT SQL",
 	"properties": {
 		"activities": [
 			{
-				"name": "Notebook1",
-				"type": "SynapseNotebook",
+				"name": "Script1",
+				"type": "Script",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,23 +15,8 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebook": {
-						"referenceName": "Extraction_donnees_OCDE_API",
-						"type": "NotebookReference"
-					},
-					"snapshot": true,
-					"sparkPool": {
-						"referenceName": "JGOCDE",
-						"type": "BigDataPoolReference"
-					},
-					"executorSize": "Small",
-					"conf": {
-						"spark.dynamicAllocation.enabled": false,
-						"spark.dynamicAllocation.minExecutors": 1,
-						"spark.dynamicAllocation.maxExecutors": 1
-					},
-					"driverSize": "Small",
-					"numExecutors": 1
+					"scripts": [],
+					"scriptBlockExecutionTimeout": "02:00:00"
 				}
 			}
 		],
