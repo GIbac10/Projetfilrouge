@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 11",
+	"properties": {
+		"content": {
+			"query": "CREATE EXTERNAL TABLE dbo.couverturesociale (\n\t[PAYS] nvarchar(50),\n\t[ANNEE] nvarchar(50),\n\t[POPULATION_COUVERTE(Milliers_personnes)] float,\n\t[POPULATION_COUVERTE(%)] float\n\t)\n\tWITH (\n\tLOCATION = 'argent/couverturesociale/part-00000-43383ae1-eca8-4973-a707-7ce0f52a4480-c000.snappy.parquet',\n\tDATA_SOURCE = ExternalDatasourceDatalake,\n\tFILE_FORMAT = ParquetFileFormat\n\t)",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "OCDE",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
