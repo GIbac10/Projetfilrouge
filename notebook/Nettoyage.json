@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "eba5921c-4303-4215-8d37-193a4a08b39f"
+				"spark.autotune.trackingId": "bd78e89d-a095-4943-a459-4afbaf43759b"
 			}
 		},
 		"metadata": {
@@ -60,7 +60,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -76,16 +76,7 @@
 					}
 				},
 				"source": [
-					"// Transformation depensesante\r\n",
-					"val depensesante = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/depensesante\")\r\n",
 					"\r\n",
-					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
-					"val depensesante_supp_colonnes = depensesante.drop(\"HF\",\"HC\",\"HP\",\"MEASURE\")\r\n",
-					"val depensesante_filtre_pays = depensesante_supp_colonnes.filter(depensesante_supp_colonnes(\"LOCATION\").isin(listepays:_*))\r\n",
-					"val depensesante_clean = depensesante_filtre_pays.withColumnRenamed(\"value\",\"DEPENSE_SANTE_%_PIB\").withColumnRenamed(\"LOCATION\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
-					"\r\n",
-					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
-					"depensesante_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/depensesante\")\r\n",
 					""
 				],
 				"execution_count": 42
@@ -107,24 +98,6 @@
 					"depensesante.show()"
 				],
 				"execution_count": 3
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesante.groupBy(\"MEASURE\").count().orderBy(\"count\").show()"
-				],
-				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -207,7 +180,7 @@
 					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
 					"population_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/population\")"
 				],
-				"execution_count": 32
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -259,20 +232,111 @@
 					}
 				},
 				"source": [
+					"// Transformation depensesante\r\n",
+					"val depensesante = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/depensesante\")\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val depensesante_supp_colonnes = depensesante.drop(\"HF\",\"HC\",\"HP\",\"MEASURE\")\r\n",
+					"val depensesante_filtre_pays = depensesante_supp_colonnes.filter(depensesante_supp_colonnes(\"LOCATION\").isin(listepays:_*))\r\n",
+					"val depensesante_clean = depensesante_filtre_pays.withColumnRenamed(\"value\",\"DEPENSE_SANTE_%_PIB\").join(population_totale_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\").withColumnRenamed(\"LOCATION\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
+					"depensesante_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/depensesante\")"
+				],
+				"execution_count": 60
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesante.show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesante_clean.show()"
+				],
+				"execution_count": 61
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					"// Transformation pib\r\n",
 					"val pib = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/pib\")\r\n",
 					"\r\n",
 					"\r\n",
 					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
-					"val pib_supp_colonnes = pib.drop(\"TRANSACT\",\"MEASURE\")\r\n",
+					"\r\n",
+					"\r\n",
+					"val pib_supp_colonnes = pib.drop(\"TRANSACT\")\r\n",
 					"val pib_filtre_pays = pib_supp_colonnes.filter(pib_supp_colonnes(\"LOCATION\").isin(listepays:_*))\r\n",
-					"val pib_clean = pib_filtre_pays.withColumnRenamed(\"value\",\"PIB(Milliers_Dollards)\").withColumnRenamed(\"LOCATION\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"val pib_total = pib_filtre_pays.filter(pib_supp_colonnes(\"MEASURE\") === \"CPC\")\r\n",
+					"val pib_par_hab = pib_filtre_pays.filter(pib_supp_colonnes(\"MEASURE\") === \"HCPC\")\r\n",
+					"\r\n",
+					"\r\n",
+					"val pib_total_clean = pib_total.withColumnRenamed(\"value\",\"PIB(Millions_Dollards)\").drop(\"MEASURE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"val pib_par_hab_clean = pib_par_hab.withColumnRenamed(\"value\",\"PIB_PAR_HAB\").drop(\"MEASURE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"val pib_clean = pib_total_clean.join(pib_par_hab_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\").withColumnRenamed(\"LOCATION\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
 					"\r\n",
 					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
 					"pib_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/pib\")\r\n",
 					""
 				],
-				"execution_count": 44
+				"execution_count": 74
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pib_filtre_pays.show()"
+				],
+				"execution_count": 69
 			},
 			{
 				"cell_type": "code",
@@ -290,7 +354,7 @@
 				"source": [
 					"pib.show()"
 				],
-				"execution_count": 45
+				"execution_count": 64
 			},
 			{
 				"cell_type": "code",
@@ -308,7 +372,7 @@
 				"source": [
 					"pib_clean.show()"
 				],
-				"execution_count": 46
+				"execution_count": 75
 			},
 			{
 				"cell_type": "code",
@@ -346,15 +410,24 @@
 					"val couverturesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/couverturesociale\")\r\n",
 					"\r\n",
 					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
-					"val couverturesociale_supp_colonnes = couverturesociale.drop(\"VAR\",\"UNIT\")\r\n",
+					"val couverturesociale_supp_colonnes = couverturesociale.drop(\"VAR\")\r\n",
 					"val couverturesociale_filtre_pays = couverturesociale_supp_colonnes.filter(couverturesociale_supp_colonnes(\"COU\").isin(listepays:_*))\r\n",
-					"val couverturesociale_clean = couverturesociale_filtre_pays.withColumnRenamed(\"value\",\"POPULATION_COUVERTE(%)\").withColumnRenamed(\"COU\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"val couverturesociale_nb_personnes = couverturesociale_filtre_pays.filter(couverturesociale_supp_colonnes(\"UNIT\") === \"EFFPEREF\")\r\n",
+					"val couverturesociale_pop = couverturesociale_filtre_pays.filter(couverturesociale_supp_colonnes(\"UNIT\") === \"TOTPOPTX\")\r\n",
+					"\r\n",
+					"\r\n",
+					"val couverturesociale_nb_personnes_clean = couverturesociale_nb_personnes.withColumnRenamed(\"value\",\"POPULATION_COUVERTE(Milliers_personnes)\").withColumnRenamed(\"COU\",\"PAYS\").drop(\"UNIT\").orderBy(\"PAYS\",\"TIME_PERIOD\")\r\n",
+					"val couverturesociale_pop_clean = couverturesociale_pop.withColumnRenamed(\"value\",\"POPULATION_COUVERTE(%)\").withColumnRenamed(\"COU\",\"PAYS\").drop(\"UNIT\").orderBy(\"PAYS\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"\r\n",
+					"val couverturesociale_clean = couverturesociale_nb_personnes_clean.join(couverturesociale_pop_clean, Seq(\"PAYS\",\"TIME_PERIOD\"), \"inner\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
 					"\r\n",
 					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
 					"couverturesociale_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/couverturesociale\")\r\n",
 					""
 				],
-				"execution_count": 47
+				"execution_count": 79
 			},
 			{
 				"cell_type": "code",
@@ -390,7 +463,7 @@
 				"source": [
 					"couverturesociale_clean.show()"
 				],
-				"execution_count": 48
+				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
