@@ -17,15 +17,15 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "bd78e89d-a095-4943-a459-4afbaf43759b"
+				"spark.autotune.trackingId": "c7e05fde-3ddf-446d-b93c-87ae36753ff6"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
 			"enableDebugMode": false,
 			"kernelspec": {
-				"name": "synapse_pyspark",
-				"display_name": "Synapse PySpark"
+				"name": "synapse_spark",
+				"display_name": "scala"
 			},
 			"language_info": {
 				"name": "scala"
@@ -61,79 +61,6 @@
 					""
 				],
 				"execution_count": 54
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"\r\n",
-					""
-				],
-				"execution_count": 42
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesante.show()"
-				],
-				"execution_count": 3
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesante_clean.count()"
-				],
-				"execution_count": 28
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesante_clean.show()"
-				],
-				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -196,42 +123,6 @@
 					}
 				},
 				"source": [
-					"population.show()"
-				],
-				"execution_count": 6
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"population_clean.show()"
-				],
-				"execution_count": 33
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
 					"// Transformation depensesante\r\n",
 					"val depensesante = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/depensesante\")\r\n",
 					"\r\n",
@@ -244,42 +135,6 @@
 					"depensesante_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/depensesante\")"
 				],
 				"execution_count": 60
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesante.show()"
-				],
-				"execution_count": null
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesante_clean.show()"
-				],
-				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -334,78 +189,6 @@
 					}
 				},
 				"source": [
-					"pib_filtre_pays.show()"
-				],
-				"execution_count": 69
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"pib.show()"
-				],
-				"execution_count": 64
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"pib_clean.show()"
-				],
-				"execution_count": 75
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"pib_clean.count()"
-				],
-				"execution_count": 23
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
 					"// Transformation couverturesociale\r\n",
 					"val couverturesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/couverturesociale\")\r\n",
 					"\r\n",
@@ -428,42 +211,6 @@
 					""
 				],
 				"execution_count": 79
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"couverturesociale.show()"
-				],
-				"execution_count": 18
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"couverturesociale_clean.show()"
-				],
-				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
@@ -514,60 +261,6 @@
 					}
 				},
 				"source": [
-					"depensesociale.show()"
-				],
-				"execution_count": 10
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesociale_clean.show()"
-				],
-				"execution_count": 50
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"depensesociale_clean.count()"
-				],
-				"execution_count": 12
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
 					"// Transformation cotisationsecu\r\n",
 					"val cotisationsecu = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/cotisationsecu\")\r\n",
 					"\r\n",
@@ -580,60 +273,6 @@
 					"cotisationsecu_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/cotisationsecu\")"
 				],
 				"execution_count": 51
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"cotisationsecu.show()"
-				],
-				"execution_count": 14
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"cotisationsecu_clean.show()"
-				],
-				"execution_count": 52
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"cotisationsecu_clean.count()"
-				],
-				"execution_count": 16
 			}
 		]
 	}
