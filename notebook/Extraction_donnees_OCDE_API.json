@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "693428b6-525d-4eb5-b515-83ad554e8b74"
+				"spark.autotune.trackingId": "6b439061-e429-4dca-9817-ed9c86062ab7"
 			}
 		},
 		"metadata": {
@@ -65,7 +65,7 @@
 					"pip install pandasdmx\r\n",
 					""
 				],
-				"execution_count": 102
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -84,7 +84,7 @@
 					"import pandas as pd\r\n",
 					"import pandasdmx"
 				],
-				"execution_count": 103
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -114,7 +114,7 @@
 					"    adlspath = adlspath + filename\r\n",
 					"    return adlspath"
 				],
-				"execution_count": 104
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -132,7 +132,7 @@
 				"source": [
 					"oecd = pandasdmx.Request(\"OECD\")"
 				],
-				"execution_count": 105
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -281,7 +281,7 @@
 					"#pib OK : Supprimer TRANSACT et MEASURE : Value = Milliers DOLLARDS \r\n",
 					"pib_df = oecd.data(\r\n",
 					"    resource_id=\"SNA_TABLE1\", \r\n",
-					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EA19+EU27_2020+OECD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+ZAF.B1_GE.CPC/all?startTime=1999&endTime=2021\"\r\n",
+					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EA19+EU27_2020+OECD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+ZAF.B1_GE.CPC+HCPC/all?startTime=1999&endTime=2021\"\r\n",
 					"    ).to_pandas()\r\n",
 					"\r\n",
 					"pib = pd.DataFrame(pib_df).reset_index()\r\n",
@@ -289,7 +289,7 @@
 					"writeParquetFile(pibspark,\"overwrite\",getFilePath(\"bronze\",\"/pib\"))\r\n",
 					"testpib = getParquetDataFrame(getFilePath(\"bronze\",\"/pib\"))"
 				],
-				"execution_count": 112
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -307,7 +307,7 @@
 				"source": [
 					"testpib.show()"
 				],
-				"execution_count": 113
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -344,7 +344,7 @@
 					"#couverture sociale OK : Filtrer sur TOTPOPTX et Pays\r\n",
 					"couverturesociale_df = oecd.data(\r\n",
 					"    resource_id=\"HEALTH_PROT\", \r\n",
-					"    key=\"COVGCMED.TOTPOPTX.AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+NMEC+BRA+RUS+ZAF/all?startTime=1999&endTime=2021\"\r\n",
+					"    key=\"COVGCMED.EFFPEREF+TOTPOPTX.AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+NMEC+BRA+RUS+ZAF/all?startTime=1999&endTime=2021\"\r\n",
 					"    ).to_pandas()\r\n",
 					"\r\n",
 					"couverturesociale = pd.DataFrame(couverturesociale_df).reset_index()\r\n",
@@ -352,7 +352,7 @@
 					"writeParquetFile(couverturesocialespark,\"overwrite\",getFilePath(\"bronze\",\"/couverturesociale\"))\r\n",
 					"testcouverturesociale = getParquetDataFrame(getFilePath(\"bronze\",\"/couverturesociale\"))"
 				],
-				"execution_count": 115
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -370,7 +370,7 @@
 				"source": [
 					"testcouverturesociale.show()"
 				],
-				"execution_count": 116
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
