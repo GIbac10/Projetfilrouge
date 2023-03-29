@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "766cde5d-7990-4b56-907f-b74ee144240c"
+				"spark.autotune.trackingId": "810f6b29-9073-4ae3-90c0-6d37cdeb4463"
 			}
 		},
 		"metadata": {
@@ -60,7 +60,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -122,9 +122,45 @@
 					}
 				},
 				"source": [
+					"depensesante.groupBy(\"MEASURE\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesante_clean.count()"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					"depensesante_clean.show()"
 				],
-				"execution_count": 4
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -236,7 +272,7 @@
 					"pib_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/pib\")\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -254,7 +290,7 @@
 				"source": [
 					"pib.show()"
 				],
-				"execution_count": 9
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -270,9 +306,27 @@
 					}
 				},
 				"source": [
-					"pib_clean.show()"
+					"pib_clean.filter(pib_clean())"
 				],
-				"execution_count": 10
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pib_clean.count()"
+				],
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -300,7 +354,7 @@
 					"couverturesociale_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/couverturesociale\")\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -318,7 +372,7 @@
 				"source": [
 					"couverturesociale.show()"
 				],
-				"execution_count": 12
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -336,7 +390,7 @@
 				"source": [
 					"couverturesociale_clean.show()"
 				],
-				"execution_count": 13
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -370,7 +424,7 @@
 					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
 					"depensesociale_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/depensessociales\")"
 				],
-				"execution_count": 14
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -388,7 +442,7 @@
 				"source": [
 					"depensesociale.show()"
 				],
-				"execution_count": 15
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -406,7 +460,25 @@
 				"source": [
 					"depensesociale_clean.show()"
 				],
-				"execution_count": 16
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"depensesociale_clean.count()"
+				],
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -433,7 +505,7 @@
 					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
 					"cotisationsecu_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/cotisationsecu\")"
 				],
-				"execution_count": 17
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -451,7 +523,7 @@
 				"source": [
 					"cotisationsecu.show()"
 				],
-				"execution_count": 18
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -469,7 +541,25 @@
 				"source": [
 					"cotisationsecu_clean.show()"
 				],
-				"execution_count": 19
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"cotisationsecu_clean.count()"
+				],
+				"execution_count": 16
 			}
 		]
 	}
