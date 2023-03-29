@@ -2,7 +2,7 @@
 	"name": "SQL script 1",
 	"properties": {
 		"content": {
-			"query": "-- CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Groupeocde!' ;\n\nCREATE DATABASE SCOPED CREDENTIAL AccessSecuritySignature\nWITH\nIDENTITY = 'SHARED ACCESS SIGNATURE',\nSECRET = 'wJPOdO9rAw2nteMuOkw5fjZeZgpS8zaxLT4kwhIYk3poDduWpcn2W25f5QHL9VJdWr4oq0/KFoRa+ASt6OWVIw==' ;\n\n--CREATE EXTERNAL DATA SOURCE ExternalDatasourceDatalake WITH\n--(\n--LOCATION = 'ocde',\n--CREDENTIAL = AccessSecuritySignature\n--);\n\n--CREATE EXTERNAL FILE FORMAT ParquetFileFormat\n--WITH (\n--FORMAT_TYPE = PARQUET,\n--DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n--);\n\n",
+			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Groupeocde!' ;\n\nCREATE DATABASE SCOPED CREDENTIAL AccessSecuritySignature\nWITH\nIDENTITY = 'SHARED ACCESS SIGNATURE',\nSECRET = 'wJPOdO9rAw2nteMuOkw5fjZeZgpS8zaxLT4kwhIYk3poDduWpcn2W25f5QHL9VJdWr4oq0/KFoRa+ASt6OWVIw==' ;\n\nCREATE EXTERNAL DATA SOURCE ExternalDatasourceDatalake WITH\n(\nLOCATION = 'abfss://ocde@groupeocde.dfs.core.windows.net',\nCREDENTIAL = AccessSecuritySignature\n);\n\nCREATE EXTERNAL FILE FORMAT ParquetFileFormat\nWITH (\nFORMAT_TYPE = PARQUET,\nDATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n\n",
 			"metadata": {
 				"language": "sql"
 			},
