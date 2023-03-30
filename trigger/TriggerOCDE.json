@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "Pipeline 1",
+					"referenceName": "Pipeline OCDE",
 					"type": "PipelineReference"
 				}
 			}
@@ -16,11 +16,11 @@
 			"recurrence": {
 				"frequency": "Month",
 				"interval": 1,
-				"startTime": "2023-04-01T08:00:00Z",
-				"timeZone": "UTC",
+				"startTime": "2023-04-01T08:00:00",
+				"timeZone": "Romance Standard Time",
 				"schedule": {
 					"monthDays": [
-						-1
+						1
 					]
 				}
 			}
