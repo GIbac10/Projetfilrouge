@@ -1,0 +1,57 @@
+{
+	"name": "DelimitedText1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ecoledatagroupeocde-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Depensesante",
+				"folderPath": "test",
+				"fileSystem": "ocde"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "LOCATION",
+				"type": "String"
+			},
+			{
+				"name": "INDICATOR",
+				"type": "String"
+			},
+			{
+				"name": "SUBJECT",
+				"type": "String"
+			},
+			{
+				"name": "MEASURE",
+				"type": "String"
+			},
+			{
+				"name": "FREQUENCY",
+				"type": "String"
+			},
+			{
+				"name": "TIME",
+				"type": "String"
+			},
+			{
+				"name": "Value",
+				"type": "String"
+			},
+			{
+				"name": "Flag Codes",
+				"type": "String"
+			}
+		]
+	}
+}

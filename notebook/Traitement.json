@@ -1,0 +1,426 @@
+{
+	"name": "Traitement",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "JGOCDE",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "9ee4607d-92b6-47f7-800f-e710bbc930ad"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "scala"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/e6c8c821-d880-4476-bb09-c266d937bc05/resourceGroups/Ecoledeladata/providers/Microsoft.Synapse/workspaces/ecoledatagroupeocde/bigDataPools/JGOCDE",
+				"name": "JGOCDE",
+				"type": "Spark",
+				"endpoint": "https://ecoledatagroupeocde.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/JGOCDE",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import org.apache.spark.sql.DataFrame\n",
+					"\n",
+					"//def getCSVDataFrame(filePath: String): DataFrame = {\n",
+					"//    val df = spark.read.option(\"header\", \"true\").csv(filePath)\n",
+					"//    return df\n",
+					"//    }\n",
+					"\n",
+					"//def writeParquetFile(df, mode, filePath):\n",
+					"//    df.write.mode(mode).csv(filePath)\n",
+					"\n",
+					"def getParquetDataFrame(filePath: String): DataFrame ={\n",
+					"    val df = spark.read.parquet(filePath)\n",
+					"    return df\n",
+					"    }\n",
+					"\n",
+					"def getFilePath(relativePath: String, fileName: String): String = {\n",
+					"    val accountName = \"groupeocde\"\n",
+					"    val containerName = \"ocde\"\n",
+					"    // Construction du chemin relatif\n",
+					"    val adlsPath0 = \"abfss://\" + containerName + \"@\" + accountName + \".dfs.core.windows.net/\" + relativePath\n",
+					"    val adlsPath = adlsPath0 + fileName\n",
+					"    return adlsPath\n",
+					"}\n",
+					"\n",
+					"// Récupération des fichiers \n",
+					"// Dépenses Santé\n",
+					"val DepenseSante = getParquetDataFrame(getFilePath(\"argent\", \"/depensesante\"))\n",
+					"// Dépenses sociales\n",
+					"val DepenseSociale = getParquetDataFrame(getFilePath(\"argent\", \"/depensessociales\"))\n",
+					"// Cotisation Secu\n",
+					"val CotisationSecu = getParquetDataFrame(getFilePath(\"argent\", \"/cotisationsecu\"))\n",
+					"// Couverture Sociale\n",
+					"val CouvertureSociale= getParquetDataFrame(getFilePath(\"argent\", \"/couverturesociale\"))\n",
+					"// PIB\n",
+					"val PIB = getParquetDataFrame(getFilePath(\"argent\", \"/pib\"))\n",
+					"// Population\n",
+					"val Population = getParquetDataFrame(getFilePath(\"argent\", \"/population\"))\n",
+					"\n",
+					"\n",
+					""
+				],
+				"execution_count": 71
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"def following_years(df: DataFrame, variable: String): Int  = {\n",
+					"    val liste_pays = df.select($\"PAYS\").dropDuplicates().map(f=>f.getString(0))\n",
+					"                 .collect.toList\n",
+					"    for (pays <- liste_pays) {\n",
+					"        val df2 = df.filter($\"PAYS\" === pays)\n",
+					"        val min_value = df2.agg(min(\"ANNEE\")).head().get(0)\n",
+					"        val max_value = df2.agg(max(\"ANNEE\")).head().get(0)\n",
+					"        val all_years = Range(min_value, max_value, 1).toList\n",
+					"        val years_in_df = df2.select($\"ANNEE\").dropDuplicates().map(f=>f.getString(0))\n",
+					"                 .collect.toList\n",
+					"        if (all_years === years_in_df) {\n",
+					"            println(\"ok\")\n",
+					"        }\n",
+					"\n",
+					"    } \n",
+					"    \n",
+					"\n",
+					"    return 0\n",
+					"}\n",
+					"\n",
+					"//def taux_evol(df: DataFrame, variable: String, nomDuTaux: String): DataFrame = {\n",
+					"//    pass\n",
+					"//}\n",
+					"\n",
+					""
+				],
+				"execution_count": 83
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"following_years(DepenseSante, \"DEPENSE_SANTE_%_PIB\")"
+				],
+				"execution_count": 81
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DepenseSante.show()\n",
+					"DepenseSante.groupBy(\"PAYS\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DepenseSociale.show()\n",
+					"DepenseSociale.groupBy(\"PAYS\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CotisationSecu.show()\n",
+					"CotisationSecu.groupBy(\"PAYS\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CouvertureSociale.show()\n",
+					"CouvertureSociale.groupBy(\"PAYS\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"PIB.show()\n",
+					"PIB.groupBy(\"PAYS\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Population.show()\n",
+					"Population.groupBy(\"PAYS).count().orderBy(\"count\").show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"val DepenseSante1 = DepenseSante\n",
+					"    .filter($\"TIME_PERIOD\" >= 1999)                    // On sélectionne les années à partir de 1999\n",
+					"    .filter($\"LOCATION\".isin(listePaysEurope:_*))  // On sélectionne les pays d'Europe  \n",
+					"    //.filter($\"HC\" === \"HCTOT\")                  // On sélectionne le montant total\n",
+					"    "
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DepenseSante1.show()\n",
+					"DepenseSante1.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\n",
+					"\n",
+					"val DepenseSantePC_PIB = DepenseSante1\n",
+					"        .filter($\"MEASURE\"===\"PC_GDP\")// On filtre sur la mesure \"pourcentage\"\n",
+					"        .filter($\"\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"def taux_evol(df: DataFrame, variable: String, nom_du_taux: String): DataFrame = {\n",
+					"    for(i <- 1 to .count()){\n",
+					"        if df.loc[i, \"Pays\"] == df.loc[i-1, \"Pays\"]:\n",
+					"            df.loc[i, nom_du_taux] = round((df.loc[i, variable] - df.loc[i-1, variable])*100 / df.loc[i-1, variable], 1)\n",
+					"\n",
+					"      }\n",
+					"}\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
