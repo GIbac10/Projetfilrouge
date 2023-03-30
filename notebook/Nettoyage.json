@@ -1,0 +1,279 @@
+{
+	"name": "Nettoyage",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "JGOCDE",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "c7e05fde-3ddf-446d-b93c-87ae36753ff6"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_spark",
+				"display_name": "scala"
+			},
+			"language_info": {
+				"name": "scala"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/e6c8c821-d880-4476-bb09-c266d937bc05/resourceGroups/Ecoledeladata/providers/Microsoft.Synapse/workspaces/ecoledatagroupeocde/bigDataPools/JGOCDE",
+				"name": "JGOCDE",
+				"type": "Spark",
+				"endpoint": "https://ecoledatagroupeocde.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/JGOCDE",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"// SUPPRESSION GEO,ALB,MKD ...\r\n",
+					"\r\n",
+					"val listepays = List(\"AUT\",\"BEL\",\"CZE\" ,\"DNK\",\"FIN\",\"FRA\",\"DEU\" ,\"GRC\", \"HUN\" ,\"ISL\",\"IRL\" ,\r\n",
+					"                            \"ITA\",\"LUX\" ,\"NLD\" ,\"NOR\",\"POL\",\"PRT\",\"SVK\",\"ESP\", \"SWE\" ,\"CHE\" ,\"TUR\", \r\n",
+					"                            \"GBR\", \"EST\" ,\"RUS\", \"SVN\", \"LVA\", \"LTU\" ,\"BGR\" ,\"HRV\" ,\"CYP\", \"MLT\", \r\n",
+					"                            \"ROU\" , \"SRB\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"// ------------------- TRANSFORMATION POPULATION -----------------\r\n",
+					"\r\n",
+					"// LECTURE FICHIER PARQUET \r\n",
+					"val population = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/population\")\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val population_supp_colonnes = population.drop(\"SEX\")\r\n",
+					"val population_filtre_pays = population_supp_colonnes.filter(population_supp_colonnes(\"LOCATION\").isin(listepays:_*))\r\n",
+					"\r\n",
+					"val population_less_15 = population_filtre_pays.filter(population_supp_colonnes(\"AGE\") === \"LESS_15_SHARE\")\r\n",
+					"val population_less_15_clean = population_less_15.withColumnRenamed(\"value\",\"MOINS_15_ANS\").drop(\"AGE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"\r\n",
+					"// CREATION DE 3 TABLES POUR CHAQUE VALEURS DE AGE + CHANGEMENT NOM COLONNES\r\n",
+					"val population_15_64 = population_filtre_pays.filter(population_supp_colonnes(\"AGE\") === \"15-64_SHARE\")\r\n",
+					"val population_15_64_clean = population_15_64.withColumnRenamed(\"value\",\"15-64_ANS\").drop(\"AGE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"val population_65_plus = population_filtre_pays.filter(population_supp_colonnes(\"AGE\") === \"65_OVER_SHARE\")\r\n",
+					"val population_65_plus_clean = population_65_plus.withColumnRenamed(\"value\",\"PLUS_64_ANS\").drop(\"AGE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"val population_totale = population_filtre_pays.filter(population_supp_colonnes(\"AGE\") === \"TOTAL\")\r\n",
+					"val population_totale_clean = population_totale.withColumnRenamed(\"value\",\"NB_HABITANTS\").drop(\"AGE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"// JOINTURES\r\n",
+					"val population_less_64 = population_less_15_clean.join(population_15_64_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\")\r\n",
+					"val population_full = population_less_64.join(population_65_plus_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\")\r\n",
+					"val population_clean = population_full.join(population_totale_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\").withColumnRenamed(\"LOCATION\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\")\r\n",
+					"\r\n",
+					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
+					"population_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/population\")"
+				],
+				"execution_count": 55
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"// Transformation depensesante\r\n",
+					"val depensesante = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/depensesante\")\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val depensesante_supp_colonnes = depensesante.drop(\"HF\",\"HC\",\"HP\",\"MEASURE\")\r\n",
+					"val depensesante_filtre_pays = depensesante_supp_colonnes.filter(depensesante_supp_colonnes(\"LOCATION\").isin(listepays:_*))\r\n",
+					"val depensesante_clean = depensesante_filtre_pays.withColumnRenamed(\"value\",\"DEPENSE_SANTE_%_PIB\").join(population_totale_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\").withColumnRenamed(\"LOCATION\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
+					"depensesante_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/depensesante\")"
+				],
+				"execution_count": 60
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"// Transformation pib\r\n",
+					"val pib = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/pib\")\r\n",
+					"\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"\r\n",
+					"\r\n",
+					"val pib_supp_colonnes = pib.drop(\"TRANSACT\")\r\n",
+					"val pib_filtre_pays = pib_supp_colonnes.filter(pib_supp_colonnes(\"LOCATION\").isin(listepays:_*))\r\n",
+					"\r\n",
+					"val pib_total = pib_filtre_pays.filter(pib_supp_colonnes(\"MEASURE\") === \"CPC\")\r\n",
+					"val pib_par_hab = pib_filtre_pays.filter(pib_supp_colonnes(\"MEASURE\") === \"HCPC\")\r\n",
+					"\r\n",
+					"\r\n",
+					"val pib_total_clean = pib_total.withColumnRenamed(\"value\",\"PIB(Millions_Dollards)\").drop(\"MEASURE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"val pib_par_hab_clean = pib_par_hab.withColumnRenamed(\"value\",\"PIB_PAR_HAB\").drop(\"MEASURE\").orderBy(\"LOCATION\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"val pib_clean = pib_total_clean.join(pib_par_hab_clean, Seq(\"LOCATION\",\"TIME_PERIOD\"), \"inner\").withColumnRenamed(\"LOCATION\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
+					"pib_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/pib\")\r\n",
+					""
+				],
+				"execution_count": 74
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"// Transformation couverturesociale\r\n",
+					"val couverturesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/couverturesociale\")\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val couverturesociale_supp_colonnes = couverturesociale.drop(\"VAR\")\r\n",
+					"val couverturesociale_filtre_pays = couverturesociale_supp_colonnes.filter(couverturesociale_supp_colonnes(\"COU\").isin(listepays:_*))\r\n",
+					"\r\n",
+					"val couverturesociale_nb_personnes = couverturesociale_filtre_pays.filter(couverturesociale_supp_colonnes(\"UNIT\") === \"EFFPEREF\")\r\n",
+					"val couverturesociale_pop = couverturesociale_filtre_pays.filter(couverturesociale_supp_colonnes(\"UNIT\") === \"TOTPOPTX\")\r\n",
+					"\r\n",
+					"\r\n",
+					"val couverturesociale_nb_personnes_clean = couverturesociale_nb_personnes.withColumnRenamed(\"value\",\"POPULATION_COUVERTE(Milliers_personnes)\").withColumnRenamed(\"COU\",\"PAYS\").drop(\"UNIT\").orderBy(\"PAYS\",\"TIME_PERIOD\")\r\n",
+					"val couverturesociale_pop_clean = couverturesociale_pop.withColumnRenamed(\"value\",\"POPULATION_COUVERTE(%)\").withColumnRenamed(\"COU\",\"PAYS\").drop(\"UNIT\").orderBy(\"PAYS\",\"TIME_PERIOD\")\r\n",
+					"\r\n",
+					"\r\n",
+					"val couverturesociale_clean = couverturesociale_nb_personnes_clean.join(couverturesociale_pop_clean, Seq(\"PAYS\",\"TIME_PERIOD\"), \"inner\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
+					"couverturesociale_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/couverturesociale\")\r\n",
+					""
+				],
+				"execution_count": 79
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"// Transformation depensesociale\r\n",
+					"val depensesociale = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/depensessociales\")\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val depensesociale_supp_colonnes = depensesociale.drop(\"SOURCE\",\"BRANCH\",\"TYPEXP\",\"TYPROG\",\"UNIT\")\r\n",
+					"\r\n",
+					"val depensesociale_filtre_pays = depensesociale_supp_colonnes\r\n",
+					"    .filter(depensesociale_supp_colonnes(\"COUNTRY\")\r\n",
+					"    .isin(listepays:_*))\r\n",
+					"\r\n",
+					"val depensesociale_clean = depensesociale_filtre_pays\r\n",
+					"    .withColumnRenamed(\"value\",\"DEPENSES_SOCIALES(%_PIB)\")\r\n",
+					"    .withColumnRenamed(\"COUNTRY\",\"PAYS\")\r\n",
+					"    .withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\")\r\n",
+					"    .orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
+					"depensesociale_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/depensessociales\")"
+				],
+				"execution_count": 49
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"// Transformation cotisationsecu\r\n",
+					"val cotisationsecu = spark.read.parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/bronze/cotisationsecu\")\r\n",
+					"\r\n",
+					"// SUPPRESSION COLONNES + FILTRE PAYS ETUDIES\r\n",
+					"val cotisationsecu_supp_colonnes = cotisationsecu.drop(\"GOV\",\"TAX\",\"VAR\")\r\n",
+					"val cotisationsecu_filtre_pays = cotisationsecu_supp_colonnes.filter(cotisationsecu_supp_colonnes(\"COU\").isin(listepays:_*))\r\n",
+					"val cotisationsecu_clean = cotisationsecu_filtre_pays.withColumnRenamed(\"value\",\"COTISATION_SECU(%PIB)\").withColumnRenamed(\"COU\",\"PAYS\").withColumnRenamed(\"TIME_PERIOD\",\"ANNEE\").orderBy(\"PAYS\",\"ANNEE\")\r\n",
+					"\r\n",
+					"// ENREGISTREMENT .PARQUET => ARGENT\r\n",
+					"cotisationsecu_clean.write.mode(\"overwrite\").parquet(\"abfss://ocde@groupeocde.dfs.core.windows.net/argent/cotisationsecu\")"
+				],
+				"execution_count": 51
+			}
+		]
+	}
+}

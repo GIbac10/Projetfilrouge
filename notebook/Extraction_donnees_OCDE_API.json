@@ -1,0 +1,485 @@
+{
+	"name": "Extraction_donnees_OCDE_API",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "JGOCDE",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "6b439061-e429-4dca-9817-ed9c86062ab7"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/e6c8c821-d880-4476-bb09-c266d937bc05/resourceGroups/Ecoledeladata/providers/Microsoft.Synapse/workspaces/ecoledatagroupeocde/bigDataPools/JGOCDE",
+				"name": "JGOCDE",
+				"type": "Spark",
+				"endpoint": "https://ecoledatagroupeocde.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/JGOCDE",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pip install pandasdmx\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pandas as pd\r\n",
+					"import pandasdmx"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"def getParquetDataFrame(filePath):\r\n",
+					"    df = spark.read.option(\"header\", True).parquet(filePath)\r\n",
+					"    return df\r\n",
+					"\r\n",
+					"def writeParquetFile(df, mode, filePath):\r\n",
+					"    df.write.mode(mode).parquet(filePath)\r\n",
+					"\r\n",
+					"def getFilePath(relativepath,filename):\r\n",
+					"    account_name = \"groupeocde\"\r\n",
+					"    container_name = \"ocde\"\r\n",
+					"    adlspath = \"abfss://%s@%s.dfs.core.windows.net/%s\"%(container_name, account_name, relativepath)\r\n",
+					"    adlspath = adlspath + filename\r\n",
+					"    return adlspath"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"oecd = pandasdmx.Request(\"OECD\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#depensesante OK\r\n",
+					"depensesante_df = oecd.data(\r\n",
+					"    resource_id=\"SHA\", \r\n",
+					"    key=\"HFTOT.HCTOT.HPTOT.PARPIB.AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+NMEC+ALB+ARG+BRA+BGR+CHN+HRV+CYP+IND+MLT+MNE+MKD+PER+ROU+SRB+ZAF/all?startTime=1999&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"depensesante = pd.DataFrame(depensesante_df).reset_index()\r\n",
+					"depensesantespark = spark.createDataFrame(depensesante)\r\n",
+					"writeParquetFile(depensesantespark,\"overwrite\",getFilePath(\"bronze\",\"/depensesante\"))\r\n",
+					"testdepensesante = getParquetDataFrame(getFilePath(\"bronze\",\"/depensesante\"))\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 106
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testdepensesante.show()"
+				],
+				"execution_count": 107
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testdepensesante.groupBy(\"LOCATION\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 108
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#population OK : 4 valeurs de AGE à mettre en colonnes\r\n",
+					"population_df = oecd.data(\r\n",
+					"    resource_id=\"HISTPOP\", \r\n",
+					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EU27+G20+OECD+WLD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+SGP+ZAF.T.TOTAL+LESS_15_SHARE+15-64_SHARE+65_OVER_SHARE/all?startTime=1999&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"population = pd.DataFrame(population_df).reset_index()\r\n",
+					"populationspark = spark.createDataFrame(population)\r\n",
+					"writeParquetFile(populationspark,\"overwrite\",getFilePath(\"bronze\",\"/population\"))\r\n",
+					"testpopulation = getParquetDataFrame(getFilePath(\"bronze\",\"/population\"))\r\n",
+					""
+				],
+				"execution_count": 109
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testpopulation.show()\r\n",
+					""
+				],
+				"execution_count": 110
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testpopulation.groupBy(\"AGE\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 111
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#pib OK : Supprimer TRANSACT et MEASURE : Value = Milliers DOLLARDS \r\n",
+					"pib_df = oecd.data(\r\n",
+					"    resource_id=\"SNA_TABLE1\", \r\n",
+					"    key=\"AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+EA19+EU27_2020+OECD+NMEC+ARG+BRA+BGR+CHN+HRV+CYP+IND+IDN+MLT+ROU+RUS+SAU+ZAF.B1_GE.CPC+HCPC/all?startTime=1999&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"pib = pd.DataFrame(pib_df).reset_index()\r\n",
+					"pibspark = spark.createDataFrame(pib)\r\n",
+					"writeParquetFile(pibspark,\"overwrite\",getFilePath(\"bronze\",\"/pib\"))\r\n",
+					"testpib = getParquetDataFrame(getFilePath(\"bronze\",\"/pib\"))"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testpib.show()"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testpib.groupBy(\"TRANSACT\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 114
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#couverture sociale OK : Filtrer sur TOTPOPTX et Pays\r\n",
+					"couverturesociale_df = oecd.data(\r\n",
+					"    resource_id=\"HEALTH_PROT\", \r\n",
+					"    key=\"COVGCMED.EFFPEREF+TOTPOPTX.AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+NMEC+BRA+RUS+ZAF/all?startTime=1999&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"couverturesociale = pd.DataFrame(couverturesociale_df).reset_index()\r\n",
+					"couverturesocialespark = spark.createDataFrame(couverturesociale)\r\n",
+					"writeParquetFile(couverturesocialespark,\"overwrite\",getFilePath(\"bronze\",\"/couverturesociale\"))\r\n",
+					"testcouverturesociale = getParquetDataFrame(getFilePath(\"bronze\",\"/couverturesociale\"))"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testcouverturesociale.show()"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#depensessociales OK : %PIB : supprimer SOURCE|BRANCH|TYPEXP|TYPROG|   UNIT\r\n",
+					"depensessociales_df = oecd.data(\r\n",
+					"    resource_id=\"SOCX_AGG\", \r\n",
+					"    key=\"50.90.0.0.PCT_GDP.AUS+AUT+BEL+CAN+CHL+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+TUR+GBR+USA+OECD/all?startTime=1999&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"depensessociales = pd.DataFrame(depensessociales_df).reset_index()\r\n",
+					"depensessocialesspark = spark.createDataFrame(depensessociales)\r\n",
+					"writeParquetFile(depensessocialesspark,\"overwrite\",getFilePath(\"bronze\",\"/depensessociales\"))\r\n",
+					"testdepensessociales = getParquetDataFrame(getFilePath(\"bronze\",\"/depensessociales\"))"
+				],
+				"execution_count": 117
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testdepensessociales.groupBy(\"TYPEXP\").count().orderBy(\"count\").show()"
+				],
+				"execution_count": 118
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testdepensessociales.show()"
+				],
+				"execution_count": 119
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#cotisationsecu OK\r\n",
+					"cotisationsecu_df = oecd.data(\r\n",
+					"    resource_id=\"REV\", \r\n",
+					"    key=\"NES.2000.TAXGDP.AUS+AUT+BEL+CAN+CHL+COL+CRI+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA/all?startTime=1999&endTime=2021\"\r\n",
+					"    ).to_pandas()\r\n",
+					"\r\n",
+					"cotisationsecu = pd.DataFrame(cotisationsecu_df).reset_index()\r\n",
+					"cotisationsecuspark = spark.createDataFrame(cotisationsecu)\r\n",
+					"writeParquetFile(cotisationsecuspark,\"overwrite\",getFilePath(\"bronze\",\"/cotisationsecu\"))\r\n",
+					"testcotisationsecu = getParquetDataFrame(getFilePath(\"bronze\",\"/cotisationsecu\"))"
+				],
+				"execution_count": 120
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"testcotisationsecu.show()"
+				],
+				"execution_count": 121
+			}
+		]
+	}
+}
